@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+
+>>>>>>> b4a83d4 (Main commit)
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
@@ -169,3 +173,7 @@ cython_debug/
 
 # PyPI configuration file
 .pypirc
+
+
+#Ignore environment variables
+env/
