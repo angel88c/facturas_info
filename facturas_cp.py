@@ -37,28 +37,28 @@ def extract_cfdi_data(xml_path):
     if complemento is not None:
         timbre = complemento.find(".//tfd:TimbreFiscalDigital", namespaces)
         if timbre is not None:
-            data["UUID"] = timbre.get("UUID", "")
+            data["UUID"] = timbre.get("UUID", "").strip()
 
     # Extraer datos del Comprobante (Total, Fecha, Método de pago)
     comprobante = root
-    data["Total"] = comprobante.get("Total", "")
-    fecha_completa = comprobante.get("Fecha", "")
+    data["Total"] = comprobante.get("Total", "").strip()
+    fecha_completa = comprobante.get("Fecha", "").strip()
     if fecha_completa:
         fecha_partes = fecha_completa.split("T")[0].split("-")
         if len(fecha_partes) == 3:
             año, mes, dia = fecha_partes
-            data["Fecha de factura"] = f"{dia}-{mes}-{año}"
+            data["Fecha de factura"] = f"{dia}-{mes}-{año}".strip()
         else:
             data["Fecha de factura"] = ""  # Formato inválido
     else:
         data["Fecha de factura"] = ""  # Fecha no encontrada
-    data["Metodo de pago"] = comprobante.get("MetodoPago", "")
-    data["Moneda"] = comprobante.get("Moneda", "")
+    data["Metodo de pago"] = comprobante.get("MetodoPago", "").strip()
+    data["Moneda"] = comprobante.get("Moneda", "").strip()
 
     # Extraer Razón Social del Emisor
     emisor = root.find(".//cfdi:Emisor", namespaces)
     if emisor is not None:
-        data["Razon Social"] = emisor.get("Nombre", "")
+        data["Razon Social"] = emisor.get("Nombre", "").strip()
 
     return data
 
@@ -75,23 +75,30 @@ if files:
     
     if "temp_dir" not in st.session_state:
         st.session_state["temp_dir"] = tempfile.TemporaryDirectory()
-        
+    
+    bar = st.progress(0, "Cargando datos...")
+    index = 1
     for file in files:
+        bar.progress(value=( index / len(files)))
+        index = index + 1
         temporal_file_path = os.path.join(st.session_state["temp_dir"].name, file.name)
         with open(temporal_file_path, "wb") as f:
             f.write(file.getbuffer())
             
         info = extract_cfdi_data(temporal_file_path)
         
-        #st.write(info)
-        #string = info.get("UUID") +"\t" + info.get("Razon Social")+"\t" 
-        # + info.get("Total")+ "\t" 
-        # + info.get("Moneda")+ "\t\t"
-        # + info.get("Fecha de factura")+"\t\t\t\t\t\t\t\t\t"
-        # + info.get("Metodo de pago")
-        #st.write(string)
         full_info.append(info)
-        df = pd.DataFrame(full_info)
-        df = df.set_index("UUID")
-        
+    
+    bar.empty()
+    
+    df = pd.DataFrame(full_info)
+    df = df.set_index("UUID")
+    
+   
+    #st.write(full_info)
+    button = st.button("Copiar al portapapeles", type="primary")
     st.table(df)
+    
+    if button:
+        df.to_clipboard(header=False, excel=True, index=True, sep='\t')
+        st.success("La información de las facturas se ha copiado al portapapeles.")
