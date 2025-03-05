@@ -94,11 +94,15 @@ if files:
     df = pd.DataFrame(full_info)
     df = df.set_index("UUID")
     
-   
-    #st.write(full_info)
-    button = st.button("Copiar al portapapeles", type="primary")
-    st.table(df)
+    #st.text_area("Copy this data", df.to_string())
+    #styled_df = df.style.set_properties(**{'font-size': '12pt'})
+    #st.markdown(styled_df.to_html(), unsafe_allow_html=True)
+    st.write(df)
+    #button = st.button("Copiar al portapapeles", type="primary")
+    #st.table(df)
     
-    if button:
-        df.to_clipboard(header=False, excel=True, index=True, sep='\t')
-        st.success("La información de las facturas se ha copiado al portapapeles.")
+    #if button:
+    #df.to_clipboard(header=False, excel=True, index=True, sep='\t')
+    #styled_df = df.style.set_properties(**{'font-size': '12pt'})
+    #st.markdown(styled_df.to_html(), unsafe_allow_html=True)
+    #st.success("La información de las facturas se ha copiado al portapapeles.")        
