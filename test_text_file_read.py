@@ -5,14 +5,17 @@ import chardet
 def extract_project_code_by_cfdi(df, cfdi):
     resultado = df[df["Num_Fact"] == cfdi]["Código de proyecto"]
     
-    if not resultado.empty:
-        return resultado.iloc[0]  # Devolver el primer valor encontrado
-    else:
+    if resultado.empty:
+        resultado = df[df["Ref_Entrada"] == cfdi]["Código de proyecto"]
+    
+    if resultado.empty:
         return ""
+    
+    return resultado.iloc[0]  # Devolver el primer valor encontrado
     
 if __name__ == '__main__':
     
-    FILE = "/Users/c_angel/Downloads/Entradas - Facturas 12 marzo.txt"
+    FILE = "/Users/c_angel/Downloads/Entradas - Facturas 13 marzo.txt"
     #FILE = "requirements.txt"
 
     encoding_detected = None
@@ -45,8 +48,10 @@ if __name__ == '__main__':
 
     # Convertir la lista de diccionarios a un DataFrame de pandas
     df = pd.DataFrame(records)
-    print(df)
+    #df.to_csv("file_text.csv")
+    #print(df["Num_Fact"])
     
     CFDI="0A51ECD5-4548-7F40-A5A1-EC87BDF5171E"
+    CFDI = "DC5CAC1C-9577-4620-BCE9-60CC31857BFB"
     extracted = extract_project_code_by_cfdi(df, CFDI)
     print(f"Código de proyecto para la factura {CFDI}: {extracted}")

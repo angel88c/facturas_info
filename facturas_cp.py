@@ -7,13 +7,17 @@ import chardet
 
 def extract_project_code_by_cfdi(df, cfdi):
     cfdi = cfdi.upper()
-    resultado = df[df["Num_Fact"] == cfdi]["Código de proyecto"]
+    resultado = df[df["Ref_Entrada"] == cfdi]["Código de proyecto"]
     
-    if not resultado.empty:
-        return resultado.iloc[0]  # Devolver el primer valor encontrado
-    else:
+    #if resultado.empty:
+    #    resultado = df[df["Ref_Entrada"] == cfdi]["Código de proyecto"]
+    
+    if resultado.empty:
         return ""
     
+    return resultado.iloc[0]  # Devolver el primer valor encontrado
+    
+
 def extract_cfdi_data(xml_path):
     namespaces = {
         "cfdi": "http://www.sat.gob.mx/cfd/4",
@@ -141,6 +145,7 @@ if files:
             
         info = extract_cfdi_data(temporal_file_path)
         uuid = info["UUID"]
+        st.write(uuid)
         if uuid and df is not None:
             info["Codigo de proyecto"] = extract_project_code_by_cfdi(df, uuid)
             info["BU"] = info["Codigo de proyecto"][:3]
